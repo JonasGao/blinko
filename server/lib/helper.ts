@@ -8,11 +8,34 @@ import { User } from "@server/context";
 import { Request as ExpressRequest } from 'express';
 import { getGlobalConfig } from "@server/routerTrpc/config";
 
-export const SendWebhook = async (data: any, webhookType: string, ctx: any) => {
+type SendWebhookOptions = {
+  activityType?: string;
+  configUserId?: number | null;
+}
+
+export const getWebhookActivityType = (webhookType: string, activityType?: string) => {
+  if (activityType) {
+    return activityType;
+  }
+  return `blinko.note.${webhookType}`;
+}
+
+const getWebhookConfigContext = (ctx: any, configUserId?: number | null) => {
+  if (!configUserId) {
+    return ctx;
+  }
+  return {
+    ...ctx,
+    id: configUserId.toString(),
+    sub: configUserId.toString()
+  };
+}
+
+export const SendWebhook = async (data: any, webhookType: string, ctx: any, options: SendWebhookOptions = {}) => {
   try {
-    const globalConfig = await getGlobalConfig({ ctx })
+    const globalConfig = await getGlobalConfig({ ctx: getWebhookConfigContext(ctx, options.configUserId) })
     if (globalConfig.webhookEndpoint) {
-      await axios.post(globalConfig.webhookEndpoint, { data, webhookType, activityType: `blinko.note.${webhookType}` })
+      await axios.post(globalConfig.webhookEndpoint, { data, webhookType, activityType: getWebhookActivityType(webhookType, options.activityType) })
     }
   } catch (error) {
     console.log('request webhook error:', error)
@@ -138,6 +161,21 @@ export const getNextAuthSecret = async () => {
   isLoading = false
   return secret;
 }
+
+export const generateApiToken = async (user: { id: number, name: string, role: string }, permissions?: string[]) => {
+  const secret = await getNextAuthSecret();
+  return jwt.sign(
+    {
+      role: user.role,
+      name: user.name,
+      sub: user.id.toString(),
+      exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 365 * 100),
+      iat: Math.floor(Date.now() / 1000),
+      permissions
+    },
+    secret
+  );
+};
 
 export const generateToken = async (user: any, twoFactorVerified = false) => {
   const secret = await getNextAuthSecret();

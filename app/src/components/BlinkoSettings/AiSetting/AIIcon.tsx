@@ -45,6 +45,7 @@ const PROVIDER_ICONS: Record<string, React.ComponentType<any>> = {
   siliconflow: SiliconCloud.Color,
   voyageai: Voyage.Color,
   voyage: Voyage.Color,
+  litellm: OpenRouter,
   custom: OpenAI,
 };
 
@@ -164,6 +165,11 @@ const MODEL_ICON_MAP: Array<{
   {
     keywords: ['text2vec', 'gte-large', 'gte-base', 'gte-small', 'alibaba'],
     icon: Alibaba.Color
+  },
+  // MiniMax models
+  {
+    keywords: ['minimax'],
+    icon: OpenAI
   },
   // LangChain models
   {

@@ -163,11 +163,7 @@ export const aiRouter = router({
       const result = await agent.stream([
         {
           role: 'user',
-          content: question
-        },
-        {
-          role: 'system',
-          content: `This is the user's note content: ${content || ''}`
+          content: `${question}\n\nThis is the user's note content: ${content || ''}`
         }
       ]);
       for await (const chunk of result.fullStream) {
@@ -691,6 +687,15 @@ export const aiRouter = router({
               description: '',
               capabilities: inferModelCapabilities(model.id)
             })) || [];
+            break;
+          }
+
+          case 'minimax': {
+            // Static list - MiniMax models with known capabilities
+            modelList = [
+              { id: 'MiniMax-M3', name: 'MiniMax M3', capabilities: inferModelCapabilities('MiniMax-M3') },
+              { id: 'MiniMax-M2.7', name: 'MiniMax M2.7', capabilities: inferModelCapabilities('MiniMax-M2.7') }
+            ];
             break;
           }
 
