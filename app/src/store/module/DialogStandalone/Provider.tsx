@@ -87,8 +87,7 @@ const Dialog = observer(() => {
           }}
         />
         <motion.div
-          className="fixed bottom-0 left-0 right-0 z-[2001] flex flex-col items-center pointer-events-none bg-background"
-          style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
+          className="fixed bottom-0 left-0 right-0 z-[2001] flex flex-col items-center pointer-events-none"
           {...motionConfig}
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
@@ -97,6 +96,7 @@ const Dialog = observer(() => {
           {!onlyContent && (
             <motion.div
               className="w-full bg-background border-secondbackground p-1 rounded-t-lg shadow-lg pointer-events-auto"
+              style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
               {...motionConfig}
             >
               <div
@@ -125,11 +125,20 @@ const Dialog = observer(() => {
                   showOnlyContentCloseButton &&
                   <CloseButton onClose={() => modal.close()} />
                 }
+                {/* The sheet surface (bg + radius + safe-area padding) lives here instead of the
+                    outer fixed wrapper, so the rounded corner notches reveal the dark backdrop
+                    rather than a white strip. rounded-large matches the inner HeroUI Card radius,
+                    so overflow-hidden clips it cleanly with no double rounding. */}
                 <div
-                  className="w-full overflow-y-auto overscroll-contain"
-                  style={{ maxHeight: mobileSheetMaxHeight }}
+                  className="w-full bg-background rounded-large overflow-hidden"
+                  style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
                 >
-                  <Content />
+                  <div
+                    className="w-full overflow-y-auto overscroll-contain"
+                    style={{ maxHeight: mobileSheetMaxHeight }}
+                  >
+                    <Content />
+                  </div>
                 </div>
               </div>
             </motion.div>
