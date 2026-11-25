@@ -15,6 +15,7 @@ type IProps = {
   pullDownThreshold?: number;
   maxPullDownDistance?: number;
   fixMobileTopBar?: boolean
+  reserveMobileBottomBar?: boolean
 };
 
 export type ScrollAreaHandles = {
@@ -30,12 +31,13 @@ export const ScrollArea = observer(forwardRef<ScrollAreaHandles, IProps>(({
   onRefresh,
   pullDownThreshold = 60,
   maxPullDownDistance = 100,
-  fixMobileTopBar = false
+  fixMobileTopBar = false,
+  reserveMobileBottomBar = true
 }, ref) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isPc = useMediaQuery('(min-width: 768px)');
   const blinkoStore = RootStore.Get(BlinkoStore);
-  const showMobileBottomBar = !isPc && !blinkoStore.config.value?.isHiddenMobileBar;
+  const showMobileBottomBar = reserveMobileBottomBar && !isPc && !blinkoStore.config.value?.isHiddenMobileBar;
 
   // Pull to refresh states
   const [pullDistance, setPullDistance] = useState(0);
